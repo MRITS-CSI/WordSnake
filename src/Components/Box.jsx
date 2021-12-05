@@ -2,7 +2,8 @@ import React from 'react';
 import { arr, getCoords, setCoords, searchCoords } from '../Utils/Puzzle';
 const Box = () => {
 	let nx, ny;
-
+	var scale=30;
+	// var press=false;
 	/**
 	 * Namespace
 	 */
@@ -32,18 +33,23 @@ const Box = () => {
 		// Keydown Event
 		document.onkeydown = function (event) {
 			self.pressKey = event.which;
-		};
-
+		}; 
 		document.body.onkeydown = (e) => {
-			if (e.code === 'Space') {
-				//				console.log(getCoords());
+			if (e.code === 'Space' ) {
 				if (searchCoords(nx, ny) === 'q') {
 					alert('Space pressed');
 
 					console.log(searchCoords(nx, ny));
 				}
+				// if(press===false){
+				// 	press =true;
+				// }
+				// else{
+				// 	press=false;
+				// }
 			}
 		};
+		
 
 		// Get Key
 		this.getKey = function () {
@@ -91,7 +97,7 @@ const Box = () => {
 			// Itaration in Snake Conf Size
 			for (let i = 0; i < this.stage.conf.size; i++) {
 				// Add Snake Cells
-				this.stage.length.push({ x: i, y: 0 });
+				this.stage.length.push({ x: i*scale, y: 0 });
 			}
 		};
 
@@ -143,17 +149,17 @@ const Box = () => {
 			// Draw White Stage
 			context.fillStyle = 'white';
 			context.fillRect(0, 0, snake.stage.width, snake.stage.height);
-			context.font = '18px Arial';
+			context.font = '15px Arial';
 			context.beginPath();
-			for (let i = 5; i <= 605; i = i + 30) {
-				context.moveTo(i, 5);
-				context.lineTo(i, 605);
-				context.moveTo(5, i);
-				context.lineTo(605, i);
+			// for (let i = 5; i <= 605; i = i + 30) {
+			// 	context.moveTo(i, 5);
+			// 	context.lineTo(i, 605);
+			// 	context.moveTo(5, i);
+			// 	context.lineTo(605, i);
 
-				context.strokeStyle = '#000';
-				context.stroke();
-			}
+			// 	context.strokeStyle = '#000';
+			// 	context.stroke();
+			// }
 			// Snake Position
 			//console.log(snake.stage);
 			nx = snake.stage.length[0].x;
@@ -162,16 +168,16 @@ const Box = () => {
 			// Add position by stage direction
 			switch (snake.stage.direction) {
 				case 'right':
-					nx++;
+					nx+=scale;
 					break;
 				case 'left':
-					nx--;
+					nx-=scale;
 					break;
 				case 'up':
-					ny--;
+					ny-=scale;
 					break;
 				case 'down':
-					ny++;
+					ny+=scale;
 					break;
 				default:
 					console.log('Default ');
@@ -209,13 +215,22 @@ const Box = () => {
 			context.fillStyle = 'black';
 			// Random Alphabet generator
 			// let count = 1;
-			for (let j = 1, k = 5; j <= 20 && k <= 605; j++, k += 30.5) {
-				for (let i = 0, l = 15; i < 20 && l <= 605; i++, l += 30.15) {
-					context.fillText(arr[j][i], l, k + 17);
-					setCoords(Math.floor(l / 10), Math.floor((k + 17) / 10), arr[j][i]);
+			// for (let j = 1, k = 5; j <= 20 && k <= 605; j++, k += 30.5) {
+			// 	for (let i = 0, l = 15; i < 20 && l <= 605; i++, l += 30.15) {
+			// 		context.fillText(arr[j][i], l, k + 17);
+			// 		setCoords(Math.floor(l / 10), Math.floor((k + 17) / 10), arr[j][i]);
+			// 	}
+			// }
+			for(let i=0,p=0;p<snake.stage.width&& i<snake.stage.width/scale;p+=scale,i++){
+				for(let j=0,q=0;q<snake.stage.height && i<snake.stage.height/scale;q+=scale,j++){
+					context.fillText(arr[j][i],p,q);
+					context.strokeRect(p-scale/2,q-scale/2,scale,scale);
+					// if(press===true){
+					// 	context.fillRect(nx-scale/2,ny-scale/2,scale,scale);
+					// }
+					setCoords(p,q,arr[j][i]);
 				}
 			}
-
 			// for (let i = 5; i <= 605; i = i + 30.5) {
 			// 	let pos = 0;
 			// 	for (let j = 0; j <= 605; j = j + 30.15) {
@@ -238,9 +253,9 @@ const Box = () => {
 			context.fillStyle = 'rgb(62, 222, 105)';
 			context.beginPath();
 			context.arc(
-				x * snake.stage.conf.cw + 6,
-				y * snake.stage.conf.cw + 6,
-				15,
+				x ,
+				y ,
+				scale/2,
 				0,
 				2 * Math.PI,
 				false
@@ -286,7 +301,7 @@ const Box = () => {
 	 * Window Load
 	 */
 	window.onload = function () {
-		new Game.Snake('stage', { fps: 100, size: 20 });
+		new Game.Snake('stage', { fps: 250, size: 7 });
 	};
 
 	return (
