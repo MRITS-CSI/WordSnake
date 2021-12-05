@@ -475,7 +475,6 @@ export const setCoords = (x, y, val) => {
 };
 export const getCoords = () => coords;
 export const searchCoords = (x, y) => {
-	console.log(coords[`${x},${y}`]);
 	if (coords[`${x},${y}`]) {
 		return coords[`${x},${y}`];
 	}

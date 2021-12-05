@@ -1,8 +1,12 @@
 import React from 'react';
-import { arr, getCoords, setCoords, searchCoords } from '../Utils/Puzzle';
+import { arr, getCoords, setCoords } from '../Utils/Puzzle';
+
 const Box = () => {
 	let nx, ny;
-	var scale=30;
+	let scale = 30;
+	let filledCoords = [];
+	let previousMove;
+
 	// var press=false;
 	/**
 	 * Namespace
@@ -19,11 +23,14 @@ const Box = () => {
 		38: 'up',
 		39: 'right',
 		40: 'down',
+		32: 'space',
+		space: false,
 	};
 
 	/**
 	 * Keyboard Events
 	 */
+
 	Keyboard.ControllerEvents = function () {
 		// Setts
 		let self = this;
@@ -33,23 +40,34 @@ const Box = () => {
 		// Keydown Event
 		document.onkeydown = function (event) {
 			self.pressKey = event.which;
-		}; 
-		document.body.onkeydown = (e) => {
-			if (e.code === 'Space' ) {
-				if (searchCoords(nx, ny) === 'q') {
-					alert('Space pressed');
-
-					console.log(searchCoords(nx, ny));
-				}
-				// if(press===false){
-				// 	press =true;
-				// }
-				// else{
-				// 	press=false;
-				// }
+		};
+		document.onkeyup = (event) => {
+			if (event.keyCode === 32) {
+				Keyboard.Keymap.space = false;
 			}
 		};
-		
+		// document.body.onkeydown = (e) => {
+		// 	if (e.code === 'Space') {
+
+		// 		// let canvas = document.getElementById('stage');
+		// 		// let context = canvas.getContext('2d');
+		// 		// context.fillStyle = 'Orange';
+		// 		// context.lineTo(nx, ny);
+		// 		// context.fillRect(nx, ny, scale, scale);
+
+		// 		if (searchCoords(nx, ny) === 'q') {
+		// 			alert('Space pressed');
+
+		// 			console.log(searchCoords(nx, ny));
+		// 		}
+		// if(press===false){
+		// 	press =true;
+		// }
+		// else{
+		// 	press=false;
+		// }
+		//	}
+		//	};
 
 		// Get Key
 		this.getKey = function () {
@@ -97,7 +115,7 @@ const Box = () => {
 			// Itaration in Snake Conf Size
 			for (let i = 0; i < this.stage.conf.size; i++) {
 				// Add Snake Cells
-				this.stage.length.push({ x: i*scale+30, y: 30 });
+				this.stage.length.push({ x: i * scale + 30, y: 30 });
 			}
 		};
 
@@ -124,6 +142,7 @@ const Box = () => {
 
 		// Restart Stage
 		this.restart = function () {
+			filledCoords = [];
 			this.stage.length = [];
 			this.stage.food = {};
 			this.stage.score = 0;
@@ -140,11 +159,12 @@ const Box = () => {
 	Game.Draw = function (context, snake) {
 		// Draw Stage
 		this.drawStage = function () {
-			console.log(nx,ny);
+			//	console.log(nx, ny);
 			// Check Keypress And Set Stage direction
 			let keyPress = snake.stage.keyEvent.getKey();
-			if (typeof keyPress != 'undefined') {
+			if (typeof keyPress != 'undefined' && typeof keyPress != 'function') {
 				snake.stage.direction = keyPress;
+			} else if (typeof keyPress === 'function') {
 			}
 
 			// Draw White Stage
@@ -167,22 +187,56 @@ const Box = () => {
 			ny = snake.stage.length[0].y;
 			//	console.log(snake.stage.length[0]);
 			// Add position by stage direction
+			// eslint-disable-next-line default-case
 			switch (snake.stage.direction) {
 				case 'right':
-					nx+=scale;
+					nx += scale;
+					previousMove = { x: nx, y: null, dir: 'right' };
 					break;
 				case 'left':
-					nx-=scale;
+					nx -= scale;
+					previousMove = { x: nx, y: null, dir: 'left' };
+
 					break;
 				case 'up':
-					ny-=scale;
+					ny -= scale;
+					previousMove = { x: null, y: ny, dir: 'up' };
+
 					break;
 				case 'down':
-					ny+=scale;
+					ny += scale;
+					previousMove = { x: null, y: ny, dir: 'down' };
 					break;
-				default:
-					console.log('Default ');
-					break;
+				case 'space':
+					Keyboard.Keymap.space = true;
+					switch (previousMove.dir) {
+						case 'right':
+							nx += scale;
+
+							previousMove = { x: nx, y: null, dir: 'right' };
+							break;
+						case 'left':
+							nx -= scale;
+
+							previousMove = { x: nx, y: null, dir: 'left' };
+
+							break;
+						case 'up':
+							ny -= scale;
+
+							previousMove = { x: null, y: ny, dir: 'up' };
+
+							break;
+						case 'down':
+							ny += scale;
+
+							previousMove = { x: null, y: ny, dir: 'down' };
+							break;
+						default:
+							console.log('hi');
+							Keyboard.Keymap.space = false;
+							break;
+					}
 			}
 
 			// Check Collision
@@ -222,16 +276,33 @@ const Box = () => {
 			// 		setCoords(Math.floor(l / 10), Math.floor((k + 17) / 10), arr[j][i]);
 			// 	}
 			// }
-			for(let i=0,p=30;p<snake.stage.width && i<snake.stage.width/scale;p+=scale,i++){
-				for(let j=0,q=30;q<snake.stage.height && j<snake.stage.height/scale;q+=scale,j++){
-					context.fillText(arr[j][i],p,q);
-					context.strokeRect(p-scale/2,q-scale/2,scale,scale);
+			for (
+				let i = 0, p = 30;
+				p < snake.stage.width && i < snake.stage.width / scale;
+				p += scale, i++
+			) {
+				for (
+					let j = 0, q = 30;
+					q < snake.stage.height && j < snake.stage.height / scale;
+					q += scale, j++
+				) {
+					context.fillText(arr[j][i], p, q);
+					context.strokeRect(p - scale / 2, q - scale / 2, scale, scale);
 					// if(press===true){
 					// 	context.fillRect(nx-scale/2,ny-scale/2,scale,scale);
 					// }
-					setCoords(p,q,arr[j][i]);
+
+					setCoords(p, q, arr[j][i]);
 				}
 			}
+			if (Keyboard.Keymap.space === true) {
+				filledCoords.push({ x: nx, y: ny });
+			}
+			for (const el of filledCoords) {
+				context.fillStyle = 'rgba(250, 217, 55,0.6)';
+				context.fillRect(el.x - scale / 2, el.y - scale / 2, scale, scale);
+			}
+
 			// for (let i = 5; i <= 605; i = i + 30.5) {
 			// 	let pos = 0;
 			// 	for (let j = 0; j <= 605; j = j + 30.15) {
@@ -253,14 +324,7 @@ const Box = () => {
 		this.drawCell = function (x, y) {
 			context.fillStyle = 'rgb(62, 222, 105)';
 			context.beginPath();
-			context.arc(
-				x ,
-				y ,
-				scale/2,
-				0,
-				2 * Math.PI,
-				false
-			);
+			context.arc(x, y, scale / 2, 0, 2 * Math.PI, false);
 			context.fill();
 		};
 
@@ -268,9 +332,9 @@ const Box = () => {
 		this.collision = function (nx, ny) {
 			if (
 				nx < 0 ||
-				nx >= snake.stage.width  ||
+				nx >= snake.stage.width ||
 				ny < 0 ||
-				ny >= snake.stage.height 
+				ny >= snake.stage.height
 			) {
 				return true;
 			}
@@ -302,7 +366,7 @@ const Box = () => {
 	 * Window Load
 	 */
 	window.onload = function () {
-		new Game.Snake('stage', { fps: 100, size: 7 });
+		new Game.Snake('stage', { fps: 120, size: 7 });
 	};
 
 	return (
