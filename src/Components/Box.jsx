@@ -97,7 +97,7 @@ const Box = () => {
 			// Itaration in Snake Conf Size
 			for (let i = 0; i < this.stage.conf.size; i++) {
 				// Add Snake Cells
-				this.stage.length.push({ x: i*scale, y: 0 });
+				this.stage.length.push({ x: i*scale+30, y: 30 });
 			}
 		};
 
@@ -140,6 +140,7 @@ const Box = () => {
 	Game.Draw = function (context, snake) {
 		// Draw Stage
 		this.drawStage = function () {
+			console.log(nx,ny);
 			// Check Keypress And Set Stage direction
 			let keyPress = snake.stage.keyEvent.getKey();
 			if (typeof keyPress != 'undefined') {
@@ -221,8 +222,8 @@ const Box = () => {
 			// 		setCoords(Math.floor(l / 10), Math.floor((k + 17) / 10), arr[j][i]);
 			// 	}
 			// }
-			for(let i=0,p=0;p<snake.stage.width&& i<snake.stage.width/scale;p+=scale,i++){
-				for(let j=0,q=0;q<snake.stage.height && i<snake.stage.height/scale;q+=scale,j++){
+			for(let i=0,p=30;p<snake.stage.width && i<snake.stage.width/scale;p+=scale,i++){
+				for(let j=0,q=30;q<snake.stage.height && j<snake.stage.height/scale;q+=scale,j++){
 					context.fillText(arr[j][i],p,q);
 					context.strokeRect(p-scale/2,q-scale/2,scale,scale);
 					// if(press===true){
@@ -266,10 +267,10 @@ const Box = () => {
 		// Check Collision with walls
 		this.collision = function (nx, ny) {
 			if (
-				nx === -1 ||
-				nx === snake.stage.width / snake.stage.conf.cw ||
-				ny === -1 ||
-				ny === snake.stage.height / snake.stage.conf.cw
+				nx < 0 ||
+				nx >= snake.stage.width  ||
+				ny < 0 ||
+				ny >= snake.stage.height 
 			) {
 				return true;
 			}
@@ -301,13 +302,13 @@ const Box = () => {
 	 * Window Load
 	 */
 	window.onload = function () {
-		new Game.Snake('stage', { fps: 250, size: 7 });
+		new Game.Snake('stage', { fps: 100, size: 7 });
 	};
 
 	return (
 		<>
 			<h3>Simple Snake Game</h3>
-			<canvas id="stage" width="610" height="610"></canvas>
+			<canvas id="stage" width="600" height="600"></canvas>
 			<div>
 				<button onClick={() => console.log(getCoords())}>Click Me !!!</button>
 			</div>
