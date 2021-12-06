@@ -480,3 +480,5 @@ export const searchCoords = (x, y) => {
 	}
 	return null;
 };
+
+export const letters = ['abc', 'pqrs', 'ghij'];

@@ -1,11 +1,19 @@
 import React from 'react';
-import { arr, getCoords, setCoords } from '../Utils/Puzzle';
+import {
+	arr,
+	getCoords,
+	setCoords,
+	searchCoords,
+	letters,
+} from '../Utils/Puzzle';
 
 const Box = () => {
 	let nx, ny;
 	let scale = 30;
 	let filledCoords = [];
+	let correctCoords = [];
 	let previousMove;
+	let str = '';
 
 	// var press=false;
 	/**
@@ -44,6 +52,8 @@ const Box = () => {
 		document.onkeyup = (event) => {
 			if (event.keyCode === 32) {
 				Keyboard.Keymap.space = false;
+				filledCoords = [];
+				str = '';
 			}
 		};
 		// document.body.onkeydown = (e) => {
@@ -242,6 +252,8 @@ const Box = () => {
 			// Check Collision
 			if (this.collision(nx, ny) === true) {
 				snake.restart();
+				filledCoords = [];
+				correctCoords = [];
 				return;
 			}
 			let tail;
@@ -295,11 +307,34 @@ const Box = () => {
 					setCoords(p, q, arr[j][i]);
 				}
 			}
+
 			if (Keyboard.Keymap.space === true) {
+				str = '';
 				filledCoords.push({ x: nx, y: ny });
+				for (const coords of filledCoords) {
+					let val = searchCoords(coords.x, coords.y);
+					str += val;
+				}
+				if (letters.includes(str)) {
+					correctCoords = [...correctCoords, ...filledCoords];
+					for (const el of correctCoords) {
+						el.verified = true;
+					}
+
+					// filledCoords = [];
+				} else {
+					str = '';
+				}
 			}
+			// let correctAns = filledCoords.filter((el) => el.verified === true);
+
 			for (const el of filledCoords) {
 				context.fillStyle = 'rgba(250, 217, 55,0.6)';
+
+				context.fillRect(el.x - scale / 2, el.y - scale / 2, scale, scale);
+			}
+			for (const el of correctCoords) {
+				context.fillStyle = 'rgba(66, 255, 110,0.6)';
 				context.fillRect(el.x - scale / 2, el.y - scale / 2, scale, scale);
 			}
 
@@ -331,9 +366,9 @@ const Box = () => {
 		// Check Collision with walls
 		this.collision = function (nx, ny) {
 			if (
-				nx < 0 ||
+				nx < 30 ||
 				nx >= snake.stage.width ||
-				ny < 0 ||
+				ny < 30 ||
 				ny >= snake.stage.height
 			) {
 				return true;
@@ -366,7 +401,7 @@ const Box = () => {
 	 * Window Load
 	 */
 	window.onload = function () {
-		new Game.Snake('stage', { fps: 120, size: 7 });
+		new Game.Snake('stage', { fps: 500, size: 7 });
 	};
 
 	return (
@@ -374,7 +409,9 @@ const Box = () => {
 			<h3>Simple Snake Game</h3>
 			<canvas id="stage" width="600" height="600"></canvas>
 			<div>
-				<button onClick={() => console.log(getCoords())}>Click Me !!!</button>
+				<button onClick={() => console.log(getCoords())} disabled>
+					Click Me !!!
+				</button>
 			</div>
 		</>
 	);
