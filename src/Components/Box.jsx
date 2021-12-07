@@ -11,10 +11,11 @@ const Box = () => {
 	let nx, ny;
 	let scale = 30;
 	let filledCoords = [];
+	let checkCoords = [];
 	let correctCoords = [];
 	let previousMove;
 	let str = '';
-
+	//let compare = false
 	// var press=false;
 	/**
 	 * Namespace
@@ -49,36 +50,20 @@ const Box = () => {
 		document.onkeydown = function (event) {
 			self.pressKey = event.which;
 		};
-		document.onkeyup = (event) => {
-			if (event.keyCode === 32) {
-				Keyboard.Keymap.space = false;
+		document.onkeypress = (event) => {
+			if (event.code === 'Space') {
 				filledCoords = [];
-				str = '';
+				checkCoords = [];
+				Keyboard.Keymap.space = true;
 			}
 		};
-		// document.body.onkeydown = (e) => {
-		// 	if (e.code === 'Space') {
+		document.onkeyup = (event) => {
+			if (event.code === 'Space') {
+				Keyboard.Keymap.space = false;
 
-		// 		// let canvas = document.getElementById('stage');
-		// 		// let context = canvas.getContext('2d');
-		// 		// context.fillStyle = 'Orange';
-		// 		// context.lineTo(nx, ny);
-		// 		// context.fillRect(nx, ny, scale, scale);
-
-		// 		if (searchCoords(nx, ny) === 'q') {
-		// 			alert('Space pressed');
-
-		// 			console.log(searchCoords(nx, ny));
-		// 		}
-		// if(press===false){
-		// 	press =true;
-		// }
-		// else{
-		// 	press=false;
-		// }
-		//	}
-		//	};
-
+				filledCoords = [];
+			}
+		};
 		// Get Key
 		this.getKey = function () {
 			return this.keymap[this.pressKey];
@@ -218,7 +203,8 @@ const Box = () => {
 					previousMove = { x: null, y: ny, dir: 'down' };
 					break;
 				case 'space':
-					Keyboard.Keymap.space = true;
+					//	Keyboard.Keymap.space = true;
+
 					switch (previousMove.dir) {
 						case 'right':
 							nx += scale;
@@ -254,6 +240,7 @@ const Box = () => {
 				snake.restart();
 				filledCoords = [];
 				correctCoords = [];
+				checkCoords = [];
 				return;
 			}
 			let tail;
@@ -315,44 +302,25 @@ const Box = () => {
 					let val = searchCoords(coords.x, coords.y);
 					str += val;
 				}
-				if (letters.includes(str)) {
-					correctCoords = [...correctCoords, ...filledCoords];
-					for (const el of correctCoords) {
-						el.verified = true;
-					}
-
-					// filledCoords = [];
-				} else {
-					str = '';
-				}
+				checkCoords = [...filledCoords];
 			}
-			// let correctAns = filledCoords.filter((el) => el.verified === true);
+
+			if (Keyboard.Keymap.space === false && letters.includes(str)) {
+				correctCoords = [...correctCoords, ...checkCoords];
+				filledCoords = [];
+				checkCoords = [];
+			}
 
 			for (const el of filledCoords) {
 				context.fillStyle = 'rgba(250, 217, 55,0.6)';
 
 				context.fillRect(el.x - scale / 2, el.y - scale / 2, scale, scale);
 			}
+
 			for (const el of correctCoords) {
 				context.fillStyle = 'rgba(66, 255, 110,0.6)';
 				context.fillRect(el.x - scale / 2, el.y - scale / 2, scale, scale);
 			}
-
-			// for (let i = 5; i <= 605; i = i + 30.5) {
-			// 	let pos = 0;
-			// 	for (let j = 0; j <= 605; j = j + 30.15) {
-			// 		//	console.log(arr[count][pos]);
-			// 		console.log(arr[count][pos]);
-			// 		context.fillText(arr[count][pos], i, j);
-			// 		if (pos < 18) pos++;
-			// 	}
-			// 	if (count < 20) count++;
-			// }
-			// context.fillText(
-			// 	'Score: ' + snake.stage.score,
-			// 	5,
-			// 	snake.stage.height - 5
-			// );
 		};
 
 		// Draw Cell
@@ -401,7 +369,7 @@ const Box = () => {
 	 * Window Load
 	 */
 	window.onload = function () {
-		new Game.Snake('stage', { fps: 500, size: 7 });
+		new Game.Snake('stage', { fps: 100, size: 7 });
 	};
 
 	return (
@@ -409,7 +377,7 @@ const Box = () => {
 			<h3>Simple Snake Game</h3>
 			<canvas id="stage" width="600" height="600"></canvas>
 			<div>
-				<button onClick={() => console.log(getCoords())} disabled>
+				<button onClick={() => console.log(getCoords())} hidden>
 					Click Me !!!
 				</button>
 			</div>
