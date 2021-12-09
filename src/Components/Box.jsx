@@ -1,6 +1,7 @@
 import React from 'react';
 import {
-	arr,
+	randomTableGen,
+	// arr,
 	getCoords,
 	setCoords,
 	searchCoords,
@@ -15,6 +16,8 @@ const Box = () => {
 	let correctCoords = [];
 	let previousMove;
 	let str = '';
+	let arr = randomTableGen(20, 20);
+	//	console.log(arr);
 	//let compare = false
 	// var press=false;
 	/**
