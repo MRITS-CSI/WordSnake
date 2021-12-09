@@ -5,10 +5,15 @@ import {
 	getCoords,
 	setCoords,
 	searchCoords,
-	letters,
+	Letters,
 } from '../Utils/Puzzle';
 
 const Box = () => {
+	//	let [arr, setArr] = useState([]);
+	//	let [letters, setLetters] = useState([]);
+
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+
 	let nx, ny;
 	let scale = 30;
 	let filledCoords = [];
@@ -16,7 +21,9 @@ const Box = () => {
 	let correctCoords = [];
 	let previousMove;
 	let str = '';
-	let arr = randomTableGen(20, 20);
+	let arr;
+	let letters;
+	//	console.log(letters);
 	//	console.log(arr);
 	//let compare = false
 	// var press=false;
@@ -366,14 +373,27 @@ const Box = () => {
 		}, snake.stage.conf.fps);
 	};
 
+	// useEffect(() => {
+	// 	const fetch = async () => {
+	// 		let ARR = await randomTableGen(20, 20);
+	// 		let LETTERS = await Letters();
+	// 		//		console.log(ARR);
+	// 		setArr(ARR);
+	// 		setLetters(LETTERS);
+	// 	};
+	// 	fetch();
+	window.onload = async function () {
+		arr = await randomTableGen(20, 20);
+		letters = await Letters();
+		new Game.Snake('stage', { fps: 500, size: 7 });
+	};
+	// 	//	}, []);
+	// }, [true]);
 	/**Grid */
 
 	/**
 	 * Window Load
 	 */
-	window.onload = function () {
-		new Game.Snake('stage', { fps: 100, size: 7 });
-	};
 
 	return (
 		<>

@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 let coords = {};
 // export const arr = {
 // 	0: [
@@ -494,8 +496,9 @@ let alphabets = [
 ];
 let arr = [];
 let filledPos = [];
+let wordArr;
 
-export const randomTableGen = (p, q) => {
+export const randomTableGen = async (p, q) => {
 	for (let i = 0; i < p; i++) {
 		let checkArr = [];
 		for (let j = 0; j < q; j++) {
@@ -504,12 +507,15 @@ export const randomTableGen = (p, q) => {
 		}
 		arr.push(checkArr);
 	}
-	setPuzzle(p, q);
+	await setPuzzle(p, q);
 	return arr;
 };
 
-const setPuzzle = (p, q) => {
-	const letters = ['ARUN', 'DARAHAAS', 'BHARATH', 'NANDINI'];
+const setPuzzle = async (p, q) => {
+	let { data } = await axios.get('http://localhost:8000/api/v1/snake');
+
+	wordArr = data.words;
+	const letters = wordArr;
 	// randomTableGen(p, q);
 	/**
 	 * alignment => 0 (Vertical)
@@ -518,45 +524,48 @@ const setPuzzle = (p, q) => {
 
 	for (let i = 0; i < letters.length; i++) {
 		let alignment = Math.round(Math.random() * 10) % 2 === 0 ? 0 : 1;
-		let a = Math.floor(Math.random() * p);
-		let b = Math.floor(Math.random() * q);
+		const a = Math.floor(Math.random() * p);
+		const b = Math.floor(Math.random() * q);
 		let word = letters[i];
-		if (!!alignment && q - b >= word.length) {
+		if (!!alignment && q - b > word.length) {
 			console.log('Horizontal');
 			for (
 				let j = 0, l = b;
-				j < word.length && l < b + word.length + 1;
+				j < word.length && l <= b + word.length;
 				j++, l++
 			) {
 				//	for (let l = b; l < b + word.length; l++) {
-				if (!filledPos.includes({ x: a, y: l })) {
-					arr[a][l] = word[j];
+				if (!filledPos.some((el) => el.x === a && el.y === l)) {
 					filledPos.push({ x: a, y: l });
+					arr[a][l] = word[j];
 				} else {
 					i === 0 ? (i = 0) : i--;
+					filledPos = filledPos.splice(filledPos.length - 1 - j);
+
 					break;
 				}
 				//	}
 			}
-		} else if (!!alignment === false && p - a >= letters[i].length) {
+		} else if (!!alignment === false && p - a > letters[i].length) {
 			console.log('Vertical');
 			for (
 				let j = 0, m = a;
-				j < word.length && m < a + word.length + 1;
+				j < word.length && m <= a + word.length;
 				j++, m++
 			) {
 				// for (let m = a; m < a + word.length; m++) {
-				if (!filledPos.includes({ x: m, y: b })) {
-					arr[m][b] = word[j];
+				if (!filledPos.some((el) => el.x === m && el.y === b)) {
 					filledPos.push({ x: m, y: b });
+					arr[m][b] = word[j];
 				} else {
 					i === 0 ? (i = 0) : i--;
+					filledPos = filledPos.splice(filledPos.length - 1 - j);
 					break;
 				}
 				//	}
 			}
 		} else {
-			i === 0 ? (i = 0) : i--;
+			i--;
 		}
 	}
 };
@@ -578,4 +587,6 @@ export const searchCoords = (x, y) => {
 	return null;
 };
 
-export const letters = ['ARUN', 'DARAHAAS', 'BHARATH', 'NANDINI'];
+export const Letters = () => {
+	return wordArr;
+};
